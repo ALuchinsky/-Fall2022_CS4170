@@ -31,7 +31,7 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
             ny2 += pow(A[i][col], 2);
         };
     };
-    printf(" nx2=%f, ny2=%f\n", nx2, ny2);
+    // printf(" nx2=%f, ny2=%f\n", nx2, ny2);
     Vector v;
     v.resize(N);
     for(int i=0; i<N; ++i) {
@@ -45,10 +45,10 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
             v[i] = A[i][col];
         }
     };
-    printVector(v, "v = ");
+    // printVector(v, "v = ");
     genZeroMatrix(N, H);
     genHouse(v, H);
-    printMatrix(H);
+    // printMatrix(H);
 
     genZeroMatrix(N, Aout);
     for(int i=0; i<N; ++i) {
@@ -72,7 +72,15 @@ int main(int argc, char **argv) {
     A = genRandomMatrix(N);
     saveMatrix(A, "hA_in.txt");
     Matrix Aout;
-    makeHTstep(A, Aout, 0);
+
+    for(int col=0; col<N-2; ++col) {
+        makeHTstep(A, Aout, col);
+        for(int i=0; i<N; ++i) {
+            for(int j=0; j<N; ++j) {
+                A[i][j] = Aout[i][j];
+            };
+        };
+    };
     saveMatrix(Aout, "hA_out.txt");
     return 0;
 }
