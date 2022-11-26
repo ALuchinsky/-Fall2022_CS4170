@@ -37,6 +37,8 @@ int main(int argc, char **argv) {
     if(argc>1) {
         N = atoi(argv[1]);
     };
+    
+
     Matrix A = genRandomMatrix(N);
     saveMatrix(A, "A.txt");
     double init_sum = offDiagSum(A);
