@@ -1,50 +1,4 @@
-#include <iostream>
-#include <stdlib.h>
-#include <vector>
-#include <math.h>
-#include <fstream>
-#include <string.h>
-#include <array>
-
-#define Matrix std::vector< std::vector<float> >
-
-// Generates random symmetric matrix
-Matrix genRandomMatrix(int n) {
-    Matrix A;
-    A.resize(n);
-    for(int i=0; i<n; ++i) {
-        A[i].resize(n);
-    };
-    for(int i = 0; i<n; ++i) {
-        for(int j=i; j<n; ++j) {
-            A[i][j] = rand() % 100;
-            A[j][i] = A[i][j];
-        }
-    };
-    return(A);
-}
-
-void printMatrix(Matrix A) {
-    for(int i=0; i<A.size(); ++i) {
-        printf("\t");
-        for(int j=0; j<A[i].size(); ++j) {
-            printf("%.5f ", A[i][j]);
-        };
-        printf("\n");
-    };
-}
-
-void saveMatrix(Matrix A, std::string file_name) {
-    std::ofstream out(file_name);
-    for(int i=0; i<A.size(); ++i) {
-        for(int j=0; j<A[i].size(); ++j) {
-            out << A[i][j] << " ";
-        };
-        out << "\n";
-    };
-    out.close();
-}
-
+#include "utils.h"
 
 void JMstep(Matrix &A, int i, int j) {
     float xi = (A[j][j] - A[i][i])/(2*A[i][j]);
@@ -74,57 +28,9 @@ void JMstep(Matrix &A, int i, int j) {
     A[j][i] = 0;
 }
 
-double offDiagSum(Matrix A) {
-    double sum = 0;
-    for(int i=0; i<A.size(); ++i) {
-        for(int j=i+1; j<A[i].size(); j++) {
-            sum += pow(A[i][j], 2);
-        };
-    };
-    return sum;
-}
 
-int getNextI(int k, int n);
-int getNextJ(int k, int n);
 
-int getNextI(int k, int n) {
-    if(k == 0) return 1;
-    int ik = getNextI(k - 1, n);
-    int jk = getNextJ(k - 1, n);
-    if(ik < n - 1 && jk < n)  return ik;
-    if(ik < n - 1 && jk == n) return ik + 1;
-    return 1;
-}
 
-int getNextJ(int k, int n) {
-    if(k == 0) return 2;
-    int ik = getNextI(k - 1, n);
-    int jk = getNextJ(k - 1, n);
-    if(ik < n - 1 && jk < n)  return jk+1;
-    if(ik < n - 1 && jk == n) return ik + 2;
-    return 2;
-}
-
-std::vector< std::array<int, 2> > genIJs(int n) {
-    std::vector< std::array<int, 2> > ijs;
-    int maxK = n*(n-1)/2;
-    ijs.resize(maxK);
-    int k=0;
-    std::array<int, 2> ij;
-    for(int i=0; i<n; i++) {
-        for(int j=i+1; j<n; j++) {
-            ij[0]=i; ij[1]=j;
-            if(k<maxK) {
-                ijs[k]=ij;
-            }
-            else {
-                printf("Problem with i=%d, j=%d, k=%d\n", i, j, k);
-            }
-            k++;
-        }
-    }
-    return ijs;
-}
 
 int main(int argc, char **argv) {
     int N = 50;

@@ -21,21 +21,21 @@ CPP_SRCS 	 := $(wildcard ../*/*.cpp) $(wildcard ../*/*/*.cpp)
 OBJS     := $(patsubst ../%.cpp, ./%.o, $(CPP_SRCS))
 CPP_DEPS := $(patsubst ../%.cpp, ./%.d, $(CPP_SRCS))
 
+TOOLS_FILES = ../src/CStopWatch.cpp ../src/utils.cpp
 
 # All Target
 all: serial_Jacoby.exe parallel_Jacoby.exe
 
 serial_Jacoby.exe: ../src/serial_Jacoby.cpp
-	$(CC) -o $@ $< ../src/CStopWatch.cpp -I ../src/ $(OPENMP) $(ARCH) $(LIBS)
+	$(CC) -o $@ $< ${TOOLS_FILES} -I ../src/ $(OPENMP) $(ARCH) $(LIBS)
 
 parallel_Jacoby.exe: ../src/parallel_Jacoby.cpp
-	$(CC) -o $@ $< ../src/CStopWatch.cpp -I ../src/ $(OPENMP) $(ARCH) $(LIBS)
+	$(CC) -o $@ $< ${TOOLS_FILES} -I ../src/ $(OPENMP) $(ARCH) $(LIBS)
 
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(CPP_DEPS)$(CPP_DEPS) $(TARGET)
-	-@echo ' '
+	rm *.exe
 
 .PHONY: all clean dependents
 .SECONDARY:
