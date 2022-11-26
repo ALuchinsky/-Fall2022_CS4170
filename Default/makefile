@@ -23,23 +23,14 @@ CPP_DEPS := $(patsubst ../%.cpp, ./%.d, $(CPP_SRCS))
 
 
 # All Target
-all: OpenMP
+all: serial_Jacoby.exe parallel_Jacoby.exe
 
-# Tool invocations
-OpenMP: $(OBJS) $(USER_OBJS)
-	@echo 'Building target: $@'
-	@echo 'Invoking: GCC C++ Linker'
-	$(CC) -o $(TARGET) $(OPENMP) $(ARCH) $(OBJS) $(LIBS) 
-	@echo 'Finished building target: $@'
-	@echo ' '
+serial_Jacoby.exe: ../src/serial_Jacoby.cpp
+	$(CC) -o $@ $< ../src/CStopWatch.cpp -I ../src/ $(OPENMP) $(ARCH) $(LIBS)
 
-src/%.o: ../src/%.cpp
-	@mkdir -p $(@D)
-	@echo 'Building file: $<'
-	@echo 'Invoking: GCC C++ Compiler'
-	$(CC) $(INCLUDE) $(CFLAGS) $(LPSOLVE_FLAGS) $(OPENMP) $(ARCH) $(LIBS) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+parallel_Jacoby.exe: ../src/parallel_Jacoby.cpp
+	$(CC) -o $@ $< ../src/CStopWatch.cpp -I ../src/ $(OPENMP) $(ARCH) $(LIBS)
+
 
 # Other Targets
 clean:
