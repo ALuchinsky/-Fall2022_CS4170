@@ -8,9 +8,11 @@ void calc_eigenvalues(int N) {
     std::vector< std::array<int, 2> > ijs;      // Array with (i,j) pairs
     int k;                                      // Loop counter for process number
     int i, j;                                   // indicies of elements to rotate
+    int q;                                      // index for horizontal/vertical updates
     float xi, t, sin, cos;                      // rotation parameters 
     float tempAii, tempAjj;
-
+    std::vector<float> tempAiq, tempAqi, tempAjq, tempAqj;
+    
 
     A = genRandomMatrix(N);
     saveMatrix(A, "pA.txt");
@@ -23,20 +25,25 @@ void calc_eigenvalues(int N) {
 
     printf("[ijs] = %d\n", ijs.size());
 
-
-    #pragma omp parallel default(none) shared(A, ijs) \
-    private(myRank, k, i, j, xi, t, sin, cos, tempAii, tempAjj)
+    #pragma omp parallel default(none) shared(A, ijs, N) \
+    private(myRank, k, i, j, q, \
+    xi, t, sin, cos, \
+    tempAii, tempAjj, tempAiq, tempAqi, tempAjq, tempAqj)
     {
         myRank = omp_get_thread_num();
         if(myRank==0) {
             printf("Running with %d threads\n", omp_get_num_threads());
         };
 
+        tempAiq.resize(N);
+        tempAjq.resize(N);
+        tempAqi.resize(N);
+        tempAqj.resize(N);
+
         #pragma omp for
         for(k=0; k<ijs.size(); ++k) {
             i = ijs[k][0];
             j = ijs[k][1];
-            printf("k=%d, i=%d, j=%d\n", k, i, j);
 
             // calculating the rotation parameters
             xi = (A[j][j] - A[i][i])/(2*A[i][j]);
@@ -50,18 +57,27 @@ void calc_eigenvalues(int N) {
             // calculating new elements (storing in temporary vars)
             tempAii = A[i][i] - t*A[i][j];
             tempAjj = A[j][j] + t*A[i][j];
+            for(q=0; q<N; ++q) {
+                tempAiq[q] = cos * A[i][q] - sin * A[j][q];
+                tempAqi[q] = cos * A[i][q] - sin * A[j][q];
+                tempAjq[q] = sin * A[i][q] + cos * A[j][q];
+                tempAqj[q] = sin * A[i][q] + cos * A[j][q];
+            };
+            
 
             // updating the matrix
             #pragma omp critical(matrix_update)
             {
-                // i = ijs[k][0];
-                // j = ijs[k][1];
-                printf("Updating A with k=%d, i=%d, j=%d\n", k, i, j);
-                A[i][i] = tempAii;
-                A[j][j] = tempAjj;
-
                 A[i][j] = 0;
                 A[j][i] = 0;
+                A[i][i] = tempAii;
+                A[j][j] = tempAjj;
+                for(q=0; q<N; ++q) {
+                    A[i][q] = tempAiq[q];
+                    A[j][q] = tempAjq[q];
+                    A[q][i] = tempAqi[q];
+                    A[q][j] = tempAqj[q];
+                }
             }
         };
     } // ending parallel;
