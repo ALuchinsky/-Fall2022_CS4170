@@ -16,6 +16,7 @@ void calc_eigenvalues(int N) {
 
     A = genRandomMatrix(N);
     saveMatrix(A, "pA.txt");
+    printf("off_sum(A)=%d\n", offDiagSum(A));
     ijs = genIJs(N);
     std::ofstream ijs_out("ijs.txt");
     for(k=0; k<ijs.size(); ++k) {
@@ -82,6 +83,7 @@ void calc_eigenvalues(int N) {
         };
     } // ending parallel;
     saveMatrix(A, "pA_final.txt");
+    printf("off_sum(A)=%d\n", offDiagSum(A));
 }
 
 int main(int argc, char **argv) {
