@@ -19,6 +19,14 @@ Matrix genRandomMatrix(int n) {
     return(A);
 }
 
+void printVector(std::vector<float> v, std::string name="") {
+    std::cout << name << " ";
+    for(int i=0; i<v.size(); ++i) {
+        printf("%f ", v[i]);
+    };
+    printf("\n");
+}
+
 void printMatrix(Matrix A) {
     for(int i=0; i<A.size(); ++i) {
         printf("\t");
@@ -70,5 +78,16 @@ double offDiagSum(Matrix A) {
     };
     return sum;
 }
+
+void genZeroMatrix(int n, Matrix &M) {
+    M.resize(n);
+    for(int i=0; i<n; ++i) {
+        M[i].resize(n);
+        for(int j=0; j<n; ++j) {
+            M[i][j]=0;
+        }
+    };
+}
+
 
 #endif

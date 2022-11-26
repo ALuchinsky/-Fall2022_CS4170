@@ -7,6 +7,11 @@
 #include <array>
 
 #define Matrix std::vector< std::vector<float> >
+#define Vector std::vector<float>
+
+void genZeroMatrix(int n, Matrix &M);
+
+void printVector(std::vector<float> v, std::string name);
 
 // Generates random symmetric matrix
 Matrix genRandomMatrix(int n);
