@@ -1,25 +1,25 @@
 #include "utils.h"
 #include "math.h"
 
-// generates household matrix I - v vT/(vT v)
-void genHouse(Vector v, Matrix &P) {
-    int N=v.size();
-}
 
 // makes household transformation of matrix A on column i
 void makeHTstep(Matrix A, Matrix &Aout, int col) {
     int N=A.size();
     float nx2 = 0, ny2=0;
     Matrix H;
+    Vector v;
+    float v2=0;
+    genZeroMatrix(N, H);
+    v.resize(N);
+    genZeroMatrix(N, Aout);
+
+
     for(int i=0; i<N; ++i) {
         nx2 += pow(A[i][col], 2);
         if(i<=col) {
             ny2 += pow(A[i][col], 2);
         };
     };
-    // printf(" nx2=%f, ny2=%f\n", nx2, ny2);
-    Vector v;
-    v.resize(N);
     for(int i=0; i<N; ++i) {
         if(i<=col) {
             v[i]=0;
@@ -31,10 +31,7 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
             v[i] = A[i][col];
         }
     };
-    // printVector(v, "v = ");
-    genZeroMatrix(N, H);
 
-    float v2=0;
     for(int i=0; i<N; ++i) {
         v2 += v[i]*v[i];
     }
@@ -50,10 +47,7 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
     }
 
 
-    // genHouse(v, H);
-    // printMatrix(H);
 
-    genZeroMatrix(N, Aout);
     for(int i=0; i<N; ++i) {
         for(int j=0; j<N; ++j) {
             Aout[i][j] = 0;
