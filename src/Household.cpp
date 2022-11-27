@@ -87,11 +87,18 @@ int main(int argc, char **argv) {
         num_th = atoi(argv[2]);
     }
     omp_set_num_threads(num_th);
+    int debug = 0;
+    if(argc>3) {
+        debug = atoi(argv[3]);
+    }
+
 
     // Init and save matrix
     Matrix A;                                   // Matrix to analyze
     A = genRandomMatrix(N);
-    saveMatrix(A, "in_hA.txt");
+    if(debug) {
+        saveMatrix(A, "in_hA.txt");
+    };
 
     CStopWatch timer;
     timer.startTimer();
@@ -107,8 +114,7 @@ int main(int argc, char **argv) {
         };
     };
     timer.stopTimer();
-    printf("N p time\n");
-    printf("%d %d %f\n", N, omp_get_num_threads(), timer.getElapsedTime());
+    printf("%d %d %f\n", N, num_th, timer.getElapsedTime());
 
     // clear small elements
     for(int i=0; i<N; ++i) {
@@ -118,6 +124,8 @@ int main(int argc, char **argv) {
             }
         }
     };
-    saveMatrix(Aout, "out_hA.txt");
+    if(debug) {
+        saveMatrix(Aout, "out_hA.txt");
+    }
     return 0;
 }
