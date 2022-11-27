@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
         N = atoi(argv[1]);
     };
     A = genRandomMatrix(N);
-    saveMatrix(A, "hA_in.txt");
+    saveMatrix(A, "in_hA.txt");
     Matrix Aout;
 
     for(int col=0; col<N-2; ++col) {
@@ -81,6 +81,13 @@ int main(int argc, char **argv) {
             };
         };
     };
-    saveMatrix(Aout, "hA_out.txt");
+    for(int i=0; i<N; ++i) {
+        for(int j=0; j<N; ++j) {
+            if( abs(Aout[i][j])<1e-4) {
+                Aout[i][j] = 0;
+            }
+        }
+    };
+    saveMatrix(Aout, "out_hA.txt");
     return 0;
 }
