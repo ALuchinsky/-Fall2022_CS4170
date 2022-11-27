@@ -15,7 +15,7 @@ make all
 
 N=50
 
-echo "N p time" > results.csv
+echo "N p tdTime evTime" > results.csv
 for N in 10, 20, 30, 40, 50, 60, 70, 80, 90, 100
 do
     for p in 1, 2, 3, 4, 5, 10, 20
