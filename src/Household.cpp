@@ -22,7 +22,7 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
     genZeroMatrix(N, Aout);
 
     #pragma omp parallel default(none) \
-        shared(A, v, nx2, ny2, col, N, v2) \
+        shared(A, v, nx2, ny2, col, N, v2, H, Aout) \
         firstprivate(my_V)
     {
         #pragma omp for reduction(+:nx2)
@@ -43,44 +43,36 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
         for(int i=col+2; i<N; ++i) {
             v[i] = A[i][col];
         };
-        // #pragma omp critical(saveV)
-        // {
-        //     for(int i=0; i<N; ++i) {
-        //         v[i] = my_V[i];
-        //     }
-        // }
 
         #pragma omp for reduction(+: v2)
         for(int i=0; i<N; ++i) {
             v2 += v[i]*v[i];
         }
 
-    };
-
-    // cout << "nx2=" << nx2 << ", ny2=" << ny2 << endl;
-    // printVector(v, "v = ");
-
-    for(int i=0; i<N; ++i) {
-        for(int j=0; j<N; ++j) {
-            if(i==j) {
-                H[i][j] += 1;
-            } else {
-                H[i][j] = 0;
-            }
-            H[i][j] += -2*v[i]*v[j]/v2;
+        #pragma omp for
+        for(int i=0; i<N; ++i) {
+            H[i][i] = 1;
+        }
+        #pragma omp for collapse(2)       
+        for(int i=0; i<N; ++i) {
+            for(int j=0; j<N; ++j) {
+                H[i][j] += -2*v[i]*v[j]/v2;
+            };
         };
-    }
 
-    for(int i=0; i<N; ++i) {
-        for(int j=0; j<N; ++j) {
-            Aout[i][j] = 0;
-            for(int i1=0; i1<N; ++i1) {
-                for(int i2=0; i2<N; ++i2) {
-                    Aout[i][j] += H[i1][i]*A[i1][i2]*H[i2][j];
+        #pragma omp for collapse(4)
+        for(int i=0; i<N; ++i) {
+            for(int j=0; j<N; ++j) {
+                for(int i1=0; i1<N; ++i1) {
+                    for(int i2=0; i2<N; ++i2) {
+                        Aout[i][j] += H[i1][i]*A[i1][i2]*H[i2][j];
+                    };
                 };
             };
         };
     };
+
+
 };
 
 int main(int argc, char **argv) {
@@ -92,8 +84,9 @@ int main(int argc, char **argv) {
         N = atoi(argv[1]);
     };
     if(argc>2) {
-        num_th = atoi(argv[num_th]);
+        num_th = atoi(argv[2]);
     }
+    omp_set_num_threads(num_th);
 
     // Init and save matrix
     Matrix A;                                   // Matrix to analyze
@@ -104,8 +97,8 @@ int main(int argc, char **argv) {
     timer.startTimer();
     // Make the transform
     Matrix Aout;
-    // for(int col=0; col<N-2; ++col) {
-    for(int col=0; col<1; ++col) {
+    for(int col=0; col<N-2; ++col) {
+    // for(int col=0; col<1; ++col) {
         makeHTstep(A, Aout, col);
         for(int i=0; i<N; ++i) {
             for(int j=0; j<N; ++j) {
@@ -115,7 +108,7 @@ int main(int argc, char **argv) {
     };
     timer.stopTimer();
     printf("N p time\n");
-    printf("%d %d %f\n", N, num_th, timer.getElapsedTime());
+    printf("%d %d %f\n", N, omp_get_num_threads(), timer.getElapsedTime());
 
     // clear small elements
     for(int i=0; i<N; ++i) {
