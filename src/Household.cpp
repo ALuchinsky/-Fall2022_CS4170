@@ -71,9 +71,34 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
             };
         };
     };
-
-
 };
+
+// For the 3-diagonal matrix T  of eigenvalues smaller then mu
+// see https : //www5 . in . tum . de/lehre/vorlesungen/parnum/WS16/lecture_ 12. pdf
+int getNEV(float mu, Matrix T) {
+    int nCh=0;
+    int n = T.size();
+
+    // printMatrix(T);
+
+    float d = mu - T[0][0];
+    for(int j=1; j<n; ++j) {
+        if(d>0) {
+            nCh++;
+        };
+        d = (mu - T[j][j])-pow(T[j][j-1], 2)/d;
+        // printf("j=%d, dj=%f, nCh=%d\n", j, d, nCh);
+    };
+    if(d>0) {
+        nCh++;
+    };
+    return nCh;
+}
+
+
+// returns is-eigenvalue for 3-diagonal matrix T using the bisect method (* see https://www5.in.tum.de/lehre/vorlesungen/parnum/WS16/lecture_\
+12.pdf *)
+
 
 int main(int argc, char **argv) {
     // reads para,s
@@ -126,6 +151,10 @@ int main(int argc, char **argv) {
     };
     if(debug) {
         saveMatrix(Aout, "out_hA.txt");
-    }
+    };
+
+    float mu = 90;
+    int nn = getNEV(mu, Aout);
+    cout << " There are " << nn << " eigenvalues smaller then " << mu << endl;
     return 0;
 }
