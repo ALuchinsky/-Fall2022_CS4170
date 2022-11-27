@@ -3,40 +3,63 @@
 #include <omp.h>
 #include "CStopWatch.h"
 
+using std::cout;
+using std::endl;
 
 // makes household transformation of matrix A on column i
 void makeHTstep(Matrix A, Matrix &Aout, int col) {
     int N=A.size();
     float nx2 = 0, ny2=0;
-    Matrix H;
-    Vector v;
+    Matrix H, my_H;
+    Vector v, my_V;
     float v2=0;
+
     genZeroMatrix(N, H);
+    genZeroMatrix(N, my_H);
+
     v.resize(N);
+    my_V.resize(N);
     genZeroMatrix(N, Aout);
 
+    #pragma omp parallel default(none) \
+        shared(A, v, nx2, ny2, col, N, v2) \
+        firstprivate(my_V)
+    {
+        #pragma omp for reduction(+:nx2)
+        for(int i=0; i<N; ++i) {
+            nx2 += pow(A[i][col], 2);
+        };
 
-    for(int i=0; i<N; ++i) {
-        nx2 += pow(A[i][col], 2);
-        if(i<=col) {
+        #pragma omp for reduction(+:ny2)
+        for(int i=0; i<=col; ++i) {
             ny2 += pow(A[i][col], 2);
         };
-    };
-    for(int i=0; i<N; ++i) {
-        if(i<=col) {
-            v[i]=0;
-        }
-        else if(i==col+1) {
-            v[i] = A[i][col] - sqrt(nx2-ny2);
-        }
-        else {
+
+        #pragma omp single
+        {
+            v[col+1] = A[col+1][col] - sqrt(nx2-ny2);
+        };
+        #pragma omp for
+        for(int i=col+2; i<N; ++i) {
             v[i] = A[i][col];
+        };
+        // #pragma omp critical(saveV)
+        // {
+        //     for(int i=0; i<N; ++i) {
+        //         v[i] = my_V[i];
+        //     }
+        // }
+
+        #pragma omp for reduction(+: v2)
+        for(int i=0; i<N; ++i) {
+            v2 += v[i]*v[i];
         }
+
     };
 
-    for(int i=0; i<N; ++i) {
-        v2 += v[i]*v[i];
-    }
+    // cout << "nx2=" << nx2 << ", ny2=" << ny2 << endl;
+    // printVector(v, "v = ");
+
     for(int i=0; i<N; ++i) {
         for(int j=0; j<N; ++j) {
             if(i==j) {
@@ -81,7 +104,8 @@ int main(int argc, char **argv) {
     timer.startTimer();
     // Make the transform
     Matrix Aout;
-    for(int col=0; col<N-2; ++col) {
+    // for(int col=0; col<N-2; ++col) {
+    for(int col=0; col<1; ++col) {
         makeHTstep(A, Aout, col);
         for(int i=0; i<N; ++i) {
             for(int j=0; j<N; ++j) {
