@@ -1,5 +1,7 @@
 #include "utils.h"
 #include "math.h"
+#include <omp.h>
+#include "CStopWatch.h"
 
 
 // makes household transformation of matrix A on column i
@@ -46,8 +48,6 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
         };
     }
 
-
-
     for(int i=0; i<N; ++i) {
         for(int j=0; j<N; ++j) {
             Aout[i][j] = 0;
@@ -61,15 +61,26 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
 };
 
 int main(int argc, char **argv) {
+    // reads para,s
     int N=10;
-    Matrix A;                                   // Matrix to analyze
+    int num_th = 10;
+
     if(argc>1) {
         N = atoi(argv[1]);
     };
+    if(argc>2) {
+        num_th = atoi(argv[num_th]);
+    }
+
+    // Init and save matrix
+    Matrix A;                                   // Matrix to analyze
     A = genRandomMatrix(N);
     saveMatrix(A, "in_hA.txt");
-    Matrix Aout;
 
+    CStopWatch timer;
+    timer.startTimer();
+    // Make the transform
+    Matrix Aout;
     for(int col=0; col<N-2; ++col) {
         makeHTstep(A, Aout, col);
         for(int i=0; i<N; ++i) {
@@ -78,6 +89,11 @@ int main(int argc, char **argv) {
             };
         };
     };
+    timer.stopTimer();
+    printf("N p time\n");
+    printf("%d %d %f\n", N, num_th, timer.getElapsedTime());
+
+    // clear small elements
     for(int i=0; i<N; ++i) {
         for(int j=0; j<N; ++j) {
             if( abs(Aout[i][j])<1e-4) {
