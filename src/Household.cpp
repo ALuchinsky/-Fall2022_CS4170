@@ -96,9 +96,22 @@ int getNEV(float mu, Matrix T) {
 }
 
 
-// returns is-eigenvalue for 3-diagonal matrix T using the bisect method (* see https://www5.in.tum.de/lehre/vorlesungen/parnum/WS16/lecture_\
-12.pdf *)
-
+// Calculates i-th eigenvalue of the 3-diagonal matrix T
+float calcEV(int i, Matrix T, float a0, float b0, int max_it = 10) {
+    float a = a0, b = b0, c = (a+b)/2;
+    int wa;
+    for(int it=0; it<max_it; ++it) {
+        c = (a+b)/2;
+        wa = getNEV(c, T);
+        // printf("\t a=%f, b=%f, c= %f, nEv=%d\n", a, b, c, wa);
+        if(wa >= i) {
+            b = c;
+        } else {
+            a = c;
+        };
+    };
+    return c;
+};
 
 int main(int argc, char **argv) {
     // reads para,s
@@ -156,5 +169,9 @@ int main(int argc, char **argv) {
     float mu = 90;
     int nn = getNEV(mu, Aout);
     cout << " There are " << nn << " eigenvalues smaller then " << mu << endl;
+    float ev = calcEV(1, Aout, -200, 200);
+    cout << " 1st eigenvalue is " << ev << endl;
+    ev = calcEV(3, Aout, -200, 200);
+    cout << " 3rd eigenvalue is " << ev << endl;
     return 0;
 }
