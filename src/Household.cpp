@@ -138,8 +138,8 @@ int main(int argc, char **argv) {
         saveMatrix(A, "in_hA.txt");
     };
 
-    CStopWatch timer;
-    timer.startTimer();
+    CStopWatch TD_timer;
+    TD_timer.startTimer();
     // Make the transform
     Matrix Aout;
     for(int col=0; col<N-2; ++col) {
@@ -151,8 +151,22 @@ int main(int argc, char **argv) {
             };
         };
     };
-    timer.stopTimer();
-    printf("%d %d %f\n", N, num_th, timer.getElapsedTime());
+    TD_timer.stopTimer();
+
+    std::vector<float> evs;
+    evs.resize(N);
+    CStopWatch evTimer;
+    evTimer.startTimer();
+    #pragma omp parallel default(none) shared(Aout, evs, N)
+    {
+        #pragma omp for
+        for(int iev=1; iev<=N; ++iev) {
+            float ev = calcEV(iev, Aout, -1000, 1000, 100);
+            evs[iev-1] = ev;
+        };
+    };
+    evTimer.stopTimer();
+    printf("%d %d %f %f\n", N, num_th, TD_timer.getElapsedTime(), evTimer.getElapsedTime());
 
     // clear small elements
     for(int i=0; i<N; ++i) {
@@ -166,14 +180,12 @@ int main(int argc, char **argv) {
         saveMatrix(Aout, "out_hA.txt");
     };
 
-    float mu = 90;
-    int nn = getNEV(mu, Aout);
-    cout << " There are " << nn << " eigenvalues smaller then " << mu << endl;
-    std::ofstream ev_out("ev_out.txt");
-    for(int iev=1; iev<=N; ++iev) {
-        float ev = calcEV(iev, Aout, -200, 600);
-        ev_out << iev << " " << ev << endl;
-    };
-    ev_out.close();
+    if(debug) {
+        std::ofstream ev_out("ev_out.txt");
+        for(int iev=0; iev<N; ++iev) {
+            ev_out << iev << " " << evs[iev] << endl;
+        };
+        ev_out.close();
+    }
     return 0;
 }
