@@ -169,9 +169,11 @@ int main(int argc, char **argv) {
     float mu = 90;
     int nn = getNEV(mu, Aout);
     cout << " There are " << nn << " eigenvalues smaller then " << mu << endl;
-    float ev = calcEV(1, Aout, -200, 200);
-    cout << " 1st eigenvalue is " << ev << endl;
-    ev = calcEV(3, Aout, -200, 200);
-    cout << " 3rd eigenvalue is " << ev << endl;
+    std::ofstream ev_out("ev_out.txt");
+    for(int iev=1; iev<=N; ++iev) {
+        float ev = calcEV(iev, Aout, -200, 600);
+        ev_out << iev << " " << ev << endl;
+    };
+    ev_out.close();
     return 0;
 }
