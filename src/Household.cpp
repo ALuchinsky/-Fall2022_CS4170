@@ -3,21 +3,7 @@
 
 // generates household matrix I - v vT/(vT v)
 void genHouse(Vector v, Matrix &P) {
-    int n=v.size();
-    float v2=0;
-    for(int i=0; i<n; ++i) {
-        v2 += v[i]*v[i];
-    }
-    for(int i=0; i<n; ++i) {
-        for(int j=0; j<n; ++j) {
-            if(i==j) {
-                P[i][j] += 1;
-            } else {
-                P[i][j] = 0;
-            }
-            P[i][j] += -2*v[i]*v[j]/v2;
-        };
-    }
+    int N=v.size();
 }
 
 // makes household transformation of matrix A on column i
@@ -47,7 +33,24 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
     };
     // printVector(v, "v = ");
     genZeroMatrix(N, H);
-    genHouse(v, H);
+
+    float v2=0;
+    for(int i=0; i<N; ++i) {
+        v2 += v[i]*v[i];
+    }
+    for(int i=0; i<N; ++i) {
+        for(int j=0; j<N; ++j) {
+            if(i==j) {
+                H[i][j] += 1;
+            } else {
+                H[i][j] = 0;
+            }
+            H[i][j] += -2*v[i]*v[j]/v2;
+        };
+    }
+
+
+    // genHouse(v, H);
     // printMatrix(H);
 
     genZeroMatrix(N, Aout);
