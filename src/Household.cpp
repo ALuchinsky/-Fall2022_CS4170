@@ -142,9 +142,13 @@ int main(int argc, char **argv) {
     TD_timer.startTimer();
     // Make the transform
     Matrix Aout;
+    std::string out_file = "../results/hhResults/matrices/";
     for(int col=0; col<N-2; ++col) {
     // for(int col=0; col<1; ++col) {
         makeHTstep(A, Aout, col);
+        if(debug>1) {
+                saveMatrix(Aout, out_file+std::to_string(col)+".txt");
+        };
         for(int i=0; i<N; ++i) {
             for(int j=0; j<N; ++j) {
                 A[i][j] = Aout[i][j];
