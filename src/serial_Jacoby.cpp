@@ -37,6 +37,10 @@ int main(int argc, char **argv) {
     if(argc>1) {
         N = atoi(argv[1]);
     };
+    int debug = 0;
+    if(argc>2) {
+        debug = atoi(argv[2]);
+    };
     
 
     Matrix A = genRandomMatrix(N);
@@ -46,13 +50,17 @@ int main(int argc, char **argv) {
 
     std::vector< std::array<int, 2> > ijs = genIJs(N);
     int step = ijs.size()/10;
-    std::ofstream progress_file("./progress.txt");
+    std::ofstream progress_file("../results/sjResults/progress.txt");
+    std::string debug_fileName = "../results/sjResults/matrices/";
+    int it_num = 0;
     for(int it = 0; it<3; ++it) {
         printf("== %d ",it);
         for(int k = 0; k<ijs.size(); ++k) {
-            if( k % step == 0) {
+            it_num += 1;
+            if( k % step == 0 || it_num < 50) {
                 std::cout<<"."<<std::flush;
-            }
+                saveMatrix(A, debug_fileName+std::to_string(it_num) + ".txt");
+            };
             int i = ijs[k][0];
             int j = ijs[k][1];
             JMstep(A, i, j);
