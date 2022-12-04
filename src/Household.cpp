@@ -74,7 +74,7 @@ void makeHTstep(Matrix A, Matrix &Aout, int col) {
 };
 
 // For the 3-diagonal matrix T  of eigenvalues smaller then mu
-// see https : //www5 . in . tum . de/lehre/vorlesungen/parnum/WS16/lecture_ 12. pdf
+// see https://www5.in.tum.de/lehre/vorlesungen/parnum/WS16/lecture_12.pdf
 int getNEV(float mu, Matrix T) {
     int nCh=0;
     int n = T.size();
